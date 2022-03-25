@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { EvilIcons } from '@expo/vector-icons';
@@ -19,6 +20,8 @@ import formatDistance from '../helpers/formatDistanceCustom';
 
 export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     getAllTweets();
@@ -26,14 +29,23 @@ export default function HomeScreen({ navigation }) {
 
   function getAllTweets() {
     axios
-      .get('http://8414-88-147-48-141.ngrok.io/api/tweets')
+      .get('http://2a93-88-147-48-141.ngrok.io/api/tweets')
       .then(response => {
         // console.log(response.data);
         setData(response.data);
+        setIsLoading(false);
+        setIsRefreshing(false);
       })
       .catch(error => {
         console.log(error);
+        setIsLoading(false);
+        setIsRefreshing(false);
       });
+  }
+
+  function handleRefresh() {
+    setIsRefreshing(true);
+    getAllTweets();
   }
 
   const renderItem = ({ item: tweet }) => (
@@ -111,14 +123,20 @@ export default function HomeScreen({ navigation }) {
   );
   return (
     <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        ItemSeparatorComponent={() => (
-          <View style={styles.tweetSeparator}></View>
-        )}
-      />
+      {isLoading ? (
+        <ActivityIndicator style={{ marginTop: 8 }} size="large" color="gray" />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id.toString()}
+          ItemSeparatorComponent={() => (
+            <View style={styles.tweetSeparator}></View>
+          )}
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
       <AntDesign
         name="pluscircle"
         size={60}
