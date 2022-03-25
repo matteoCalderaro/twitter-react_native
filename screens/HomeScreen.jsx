@@ -22,17 +22,27 @@ export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
+  const [page, setPage] = useState(1);
+  const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false);
   useEffect(() => {
     getAllTweets();
-  }, []);
+  }, [page]);
 
   function getAllTweets() {
     axios
-      .get('http://2a93-88-147-48-141.ngrok.io/api/tweets')
+      .get(`http://2a93-88-147-48-141.ngrok.io/api/tweets?page=${page}`)
       .then(response => {
         // console.log(response.data);
-        setData(response.data);
+        if (page === 1) {
+          setData(response.data.data);
+        } else {
+          setData([...data, ...response.data.data]);
+        }
+
+        if (!response.data.next_page_url) {
+          setIsAtEndOfScrolling(true);
+        }
+
         setIsLoading(false);
         setIsRefreshing(false);
       })
@@ -44,8 +54,14 @@ export default function HomeScreen({ navigation }) {
   }
 
   function handleRefresh() {
+    setPage(1);
+    setIsAtEndOfScrolling(false);
     setIsRefreshing(true);
     getAllTweets();
+  }
+
+  function handleEnd() {
+    setPage(page + 1);
   }
 
   const renderItem = ({ item: tweet }) => (
@@ -135,6 +151,13 @@ export default function HomeScreen({ navigation }) {
           )}
           refreshing={isRefreshing}
           onRefresh={handleRefresh}
+          onEndReached={handleEnd}
+          onEndReachedThreshold={0}
+          ListFooterComponent={() =>
+            !isAtEndOfScrolling && (
+              <ActivityIndicator size="large" color="gray" />
+            )
+          }
         />
       )}
       <AntDesign
