@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,57 +12,34 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
+import axios from 'axios';
+import { formatDistanceToNowStrict } from 'date-fns';
+import locale from 'date-fns/locale/en-US';
+import formatDistance from '../helpers/formatDistanceCustom';
+
 export default function HomeScreen({ navigation }) {
-  const DATA = [
-    {
-      id: '1',
-      title: 'First Item',
-    },
-    {
-      id: '2',
-      title: 'Second Item',
-    },
-    {
-      id: '3',
-      title: 'Third Item',
-    },
-    {
-      id: '4',
-      title: 'Fourth Item',
-    },
-    {
-      id: '5',
-      title: 'Fifth Item',
-    },
-    {
-      id: '6',
-      title: 'Sixth Item',
-    },
-    {
-      id: '7',
-      title: 'Seventh Item',
-    },
-  ];
+  const [data, setData] = useState([]);
 
-  function gotoProfile() {
-    navigation.navigate('Profile Screen');
+  useEffect(() => {
+    getAllTweets();
+  }, []);
+
+  function getAllTweets() {
+    axios
+      .get('http://8414-88-147-48-141.ngrok.io/api/tweets')
+      .then(response => {
+        // console.log(response.data);
+        setData(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
-  function gotoSigleTweet() {
-    navigation.navigate('Tweet Screen');
-  }
-
-  function gotoNewTweet() {
-    navigation.navigate('New Tweet');
-  }
-
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item: tweet }) => (
     <View style={styles.tweetContainer}>
       <TouchableOpacity onPress={() => gotoProfile()}>
-        <Image
-          style={styles.avatar}
-          source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
-        />
+        <Image style={styles.avatar} source={{ uri: tweet.user.avatar }} />
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
         <TouchableOpacity
@@ -70,25 +47,27 @@ export default function HomeScreen({ navigation }) {
           onPress={() => gotoSigleTweet()}
         >
           <Text numberOfLines={1} style={styles.tweetName}>
-            {item.title}
+            {tweet.user.name}
           </Text>
           <Text numberOfLines={1} style={styles.tweetHandle}>
-            @matteocalderaro
+            @{tweet.user.username}
           </Text>
           <Text>&middot;</Text>
           <Text numberOfLines={1} style={styles.tweetHandle}>
-            9m
+            {/* {formatDistanceToNowStrict(new Date(tweet.created_at))} */}
+            {formatDistanceToNowStrict(new Date(tweet.created_at), {
+              locale: {
+                ...locale,
+                formatDistance,
+              },
+            })}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tweetContentContainer}
           onPress={() => gotoSigleTweet()}
         >
-          <Text style={styles.tweetContent}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates,
-            temporibus. Dicta facere accusamus, asperiores ullam mollitia
-            numquam quo dolor ipsum?
-          </Text>
+          <Text style={styles.tweetContent}>{tweet.body}</Text>
         </TouchableOpacity>
         <View style={styles.tweetEngagement}>
           <TouchableOpacity style={styles.flexRow}>
@@ -133,7 +112,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={DATA}
+        data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         ItemSeparatorComponent={() => (
