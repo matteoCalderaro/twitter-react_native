@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   Image,
   Platform,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -19,16 +20,42 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import formatDistance from '../helpers/formatDistanceCustom';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false);
+  const flatListRef = useRef();
 
   useEffect(() => {
     getAllTweets();
   }, [page]);
+
+  useEffect(() => {
+    if (route.params?.newTweetAdded) {
+      getAllTweetsRefresh();
+      flatListRef.current.scrollToOffset({ offset: 0 });
+    }
+  }, [route.params?.newTweetAdded]);
+
+  function getAllTweetsRefresh() {
+    setPage(1);
+    setIsAtEndOfScrolling(false);
+    setIsRefreshing(false);
+    axiosConfig
+      .get(`/tweets`)
+      .then(response => {
+        setData(response.data.data);
+        setIsLoading(false);
+        setIsRefreshing(false);
+      })
+      .catch(error => {
+        console.log(error);
+        setIsLoading(false);
+        setIsRefreshing(false);
+      });
+  }
 
   function getAllTweets() {
     axiosConfig
@@ -72,6 +99,10 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('Tweet Screen', {
       tweetId: tweetId,
     });
+  }
+
+  function gotoNewTweet() {
+    navigation.navigate('New Tweet');
   }
 
   const renderItem = ({ item: tweet }) => (
@@ -153,6 +184,7 @@ export default function HomeScreen({ navigation }) {
         <ActivityIndicator style={{ marginTop: 8 }} size="large" color="gray" />
       ) : (
         <FlatList
+          ref={flatListRef}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
@@ -170,12 +202,12 @@ export default function HomeScreen({ navigation }) {
           }
         />
       )}
-      <AntDesign
-        name="pluscircle"
-        size={60}
+      <TouchableOpacity
         style={styles.floatingButton}
         onPress={() => gotoNewTweet()}
-      />
+      >
+        <AntDesign name="plus" size={26} color="white" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -226,9 +258,14 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   floatingButton: {
-    color: '#1d9bf1',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1d9bf1',
     position: 'absolute',
-    bottom: 40,
+    bottom: 20,
     right: 12,
   },
   ml4: {

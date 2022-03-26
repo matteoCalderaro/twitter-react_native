@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+
 import { Entypo } from '@expo/vector-icons';
 import { EvilIcons } from '@expo/vector-icons';
 
