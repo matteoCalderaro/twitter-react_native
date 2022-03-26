@@ -13,7 +13,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
-import axios from 'axios';
+import axiosConfig from '../helpers/axiosConfig';
+
 import { formatDistanceToNowStrict } from 'date-fns';
 import locale from 'date-fns/locale/en-US';
 import formatDistance from '../helpers/formatDistanceCustom';
@@ -24,13 +25,14 @@ export default function HomeScreen({ navigation }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false);
+
   useEffect(() => {
     getAllTweets();
   }, [page]);
 
   function getAllTweets() {
-    axios
-      .get(`http://2a93-88-147-48-141.ngrok.io/api/tweets?page=${page}`)
+    axiosConfig
+      .get(`/tweets?page=${page}`)
       .then(response => {
         // console.log(response.data);
         if (page === 1) {
@@ -41,6 +43,8 @@ export default function HomeScreen({ navigation }) {
 
         if (!response.data.next_page_url) {
           setIsAtEndOfScrolling(true);
+        } else {
+          setIsAtEndOfScrolling(false);
         }
 
         setIsLoading(false);
@@ -64,6 +68,12 @@ export default function HomeScreen({ navigation }) {
     setPage(page + 1);
   }
 
+  function gotoSigleTweet(tweetId) {
+    navigation.navigate('Tweet Screen', {
+      tweetId: tweetId,
+    });
+  }
+
   const renderItem = ({ item: tweet }) => (
     <View style={styles.tweetContainer}>
       <TouchableOpacity onPress={() => gotoProfile()}>
@@ -72,7 +82,7 @@ export default function HomeScreen({ navigation }) {
       <View style={{ flex: 1 }}>
         <TouchableOpacity
           style={styles.flexRow}
-          onPress={() => gotoSigleTweet()}
+          onPress={() => gotoSigleTweet(tweet.id)}
         >
           <Text numberOfLines={1} style={styles.tweetName}>
             {tweet.user.name}
@@ -93,7 +103,7 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tweetContentContainer}
-          onPress={() => gotoSigleTweet()}
+          onPress={() => gotoSigleTweet(tweet.id)}
         >
           <Text style={styles.tweetContent}>{tweet.body}</Text>
         </TouchableOpacity>
