@@ -34,3 +34,7 @@ module.exports = function (api) {
 restart the server + clean the cache
 
 > expo start --clear
+
+
+
+expo start --no-dev --minify

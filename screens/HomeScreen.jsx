@@ -95,6 +95,12 @@ export default function HomeScreen({ route, navigation }) {
     setPage(page + 1);
   }
 
+  function gotoProfile(userId) {
+    navigation.navigate('Profile Screen', {
+      userId: userId,
+    });
+  }
+
   function gotoSigleTweet(tweetId) {
     navigation.navigate('Tweet Screen', {
       tweetId: tweetId,
@@ -107,7 +113,7 @@ export default function HomeScreen({ route, navigation }) {
 
   const renderItem = ({ item: tweet }) => (
     <View style={styles.tweetContainer}>
-      <TouchableOpacity onPress={() => gotoProfile()}>
+      <TouchableOpacity onPress={() => gotoProfile(tweet.user.id)}>
         <Image style={styles.avatar} source={{ uri: tweet.user.avatar }} />
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
