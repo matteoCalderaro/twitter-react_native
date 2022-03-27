@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
               setIsLoading(false);
             })
             .catch(error => {
-              console.log(error.response);
+              //   console.log(error.response);
               setError(error.response.data.message);
               setIsLoading(false);
             });
@@ -60,6 +60,8 @@ export const AuthProvider = ({ children }) => {
             })
             .catch(error => {
               console.log(error);
+              setUser(null);
+              SecureStore.deleteItemAsync('user');
               setError(error.response.data.message);
               setIsLoading(false);
             });

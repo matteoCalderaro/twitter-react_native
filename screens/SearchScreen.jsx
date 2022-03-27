@@ -7,7 +7,7 @@ export default function SearchScreen() {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    // console.log(user.avatar);
+    console.log(user.avatar);
     // axiosConfig.defaults.headers.common[
     //   'Authorization'
     // ] = `Bearer ${user.token}`;

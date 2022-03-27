@@ -120,7 +120,7 @@ export default function App() {
     SecureStore.getItemAsync('user')
       .then(userString => {
         if (userString) {
-          setUser('Matteo');
+          setUser(JSON.parse(userString));
         }
         setIsLoading(false);
       })
