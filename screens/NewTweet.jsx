@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import axiosConfig from '../helpers/axiosConfig';
+import { AuthContext } from './../context/AuthProvider';
 
 export default function NewTweet({ navigation }) {
   const [tweet, setTweet] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useContext(AuthContext);
 
   function sendTweet() {
     if (tweet.length === 0) {
@@ -21,6 +23,11 @@ export default function NewTweet({ navigation }) {
       return;
     }
     setIsLoading(true);
+
+    axiosConfig.defaults.headers.common[
+      'Authorization'
+    ] = `Bearer ${user.token}`;
+
     axiosConfig
       .post(`/tweets`, {
         body: tweet,
