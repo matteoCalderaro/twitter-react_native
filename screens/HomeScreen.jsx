@@ -23,16 +23,16 @@ import { AuthContext } from '../context/AuthProvider';
 
 export default function HomeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(true);
   const [page, setPage] = useState(1);
   const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false);
   const flatListRef = useRef();
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    getAllTweets();
-  }, [page]);
+    getAllTweetsRefresh();
+  }, []);
 
   useEffect(() => {
     if (route.params?.newTweetAdded) {
@@ -64,48 +64,49 @@ export default function HomeScreen({ route, navigation }) {
       });
   }
 
-  function getAllTweets() {
-    axiosConfig.defaults.headers.common[
-      'Authorization'
-    ] = `Bearer ${user.token}`;
+  //   function getAllTweets() {
+  //     axiosConfig.defaults.headers.common[
+  //       'Authorization'
+  //     ] = `Bearer ${user.token}`;
 
-    axiosConfig
-      .get(`/tweets?page=${page}`)
-      .then(response => {
-        // console.log(response.data);
-        if (page === 1) {
-          setData(response.data.data);
-        } else {
-          setData([...data, ...response.data.data]);
-        }
+  // axiosConfig
+  //   .get(`/tweets`)
+  //   .then(response => {
+  // console.log(response.data);
+  // if (page === 1) {
+  //   setData(response.data.data);
+  // } else {
+  // setData([...data, ...response.data.data]);
+  // setData(response.data.data);
+  // }
 
-        if (!response.data.next_page_url) {
-          setIsAtEndOfScrolling(true);
-        }
-        // else {
-        //   setIsAtEndOfScrolling(false);
-        // }
+  // if (!response.data.next_page_url) {
+  //   setIsAtEndOfScrolling(true);
+  // }
+  // else {
+  //   setIsAtEndOfScrolling(false);
+  // }
 
-        setIsLoading(false);
-        setIsRefreshing(false);
-      })
-      .catch(error => {
-        console.log(error);
-        setIsLoading(false);
-        setIsRefreshing(false);
-      });
-  }
+  //         setIsLoading(false);
+  //         setIsRefreshing(false);
+  //       })
+  //       .catch(error => {
+  //         console.log(error);
+  //         setIsLoading(false);
+  //         setIsRefreshing(false);
+  //       });
+  //   }
 
   function handleRefresh() {
-    setPage(1);
+    // setPage(1);
     setIsAtEndOfScrolling(false);
     setIsRefreshing(true);
-    getAllTweets();
+    getAllTweetsRefresh();
   }
 
-  function handleEnd() {
-    setPage(page + 1);
-  }
+  //   function handleEnd() {
+  //     setPage(page + 0);
+  //   }
 
   function gotoNewTweet() {
     navigation.navigate('New Tweet');
@@ -126,13 +127,13 @@ export default function HomeScreen({ route, navigation }) {
           )}
           refreshing={isRefreshing}
           onRefresh={handleRefresh}
-          onEndReached={handleEnd}
-          onEndReachedThreshold={0}
-          ListFooterComponent={() =>
-            !isAtEndOfScrolling && (
-              <ActivityIndicator size="large" color="gray" />
-            )
-          }
+          //   onEndReached={handleEnd}
+          //   onEndReachedThreshold={0}
+          //   ListFooterComponent={() =>
+          //     !isAtEndOfScrolling && (
+          //       <ActivityIndicator size="large" color="gray" />
+          //     )
+          //   }
         />
       )}
       <TouchableOpacity
